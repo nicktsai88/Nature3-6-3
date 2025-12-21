@@ -19,14 +19,13 @@
             --locked-color: #95a5a6;    /* 金屬灰 */
             --music-btn-color: #34495e; /* 儀器黑 */
             --favorite-color: #e056fd;  /* 紫色 (稀有氣體感) */
-            --quick-mode-color: #8e44ad; /* 極速刷題紫 */
             --player-bg: #ffffff;       /* 播放器背景 */
             --player-border: #bdc3c7;   /* 邊框 */
         }
 
         body { 
             font-family: 'Noto Sans TC', "Microsoft JhengHei", Arial, sans-serif; 
-            max-width: 1000px; /* 加寬一點以適應雙欄儀表板 */
+            max-width: 900px; 
             margin: 0 auto; 
             /* 增加頂部內距，配合加高的播放器列 */
             padding: 130px 20px 20px 20px; 
@@ -164,14 +163,14 @@
             border: 1px solid rgba(0, 0, 0, 0.05);
             border-top: 6px solid var(--primary-color);
             position: relative;
-            /* 移除 overflow: hidden 以便 sticky header 生效 */
+            overflow: hidden;
             min-height: 500px;
             backdrop-filter: blur(10px);
         }
         
         /* 首頁背景樣式 (使用 elements.jpg) */
-        #welcome-screen, #level-screen {
-            background-image: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)), url('images/elements.jpg');
+        #welcome-screen {
+            background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('elements.jpg');
             background-size: cover;
             background-position: center;
             border-radius: 10px;
@@ -185,14 +184,12 @@
             position: absolute; top: 0; left: 0; width: 0; height: 0;
             border-top: 50px solid var(--secondary-color); border-right: 50px solid transparent;
             opacity: 0.5;
-            z-index: 10;
         }
         .quiz-container::after {
             content: " ";
             position: absolute; bottom: 0; right: 0; width: 0; height: 0;
             border-bottom: 50px solid var(--primary-color); border-left: 50px solid transparent;
             opacity: 0.5;
-            z-index: 10;
         }
 
         @keyframes fadeIn {
@@ -229,9 +226,6 @@
         .btn-pink { background-color: var(--favorite-color); box-shadow: 0 4px 10px rgba(224, 86, 253, 0.3); }
         .btn-pink:hover { background-color: #be2edd; }
         
-        .btn-purple { background-color: var(--quick-mode-color); box-shadow: 0 4px 10px rgba(142, 68, 173, 0.3); }
-        .btn-purple:hover { background-color: #732d91; }
-
         .btn-sm { padding: 8px 16px; font-size: 0.95em; border-radius: 20px; margin: 0 2px;}
         
         /* --- 輸入框與快速登入 --- */
@@ -275,87 +269,95 @@
             box-shadow: 0 0 0 4px rgba(0, 86, 179, 0.2);
         }
 
-        /* --- 新版 Dashboard Layout --- */
-        .dashboard-container {
-            display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px;
+        /* --- 關卡地圖樣式 (元素週期表風格) --- */
+        #level-screen {
+            background-image: url('elements.jpg'); 
+            background-color: #ecf0f1; 
+            background-size: cover; 
+            background-position: center;
+            border: 1px solid #bdc3c7; 
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            padding: 20px;
+            min-height: 500px;
+            position: relative;
+            z-index: 1;
         }
-        .dashboard-section {
-            flex: 1; min-width: 300px; padding: 20px; border-radius: 15px; 
-            background: rgba(255,255,255,0.85); box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            display: flex; flex-direction: column;
+        
+        /* 增加一個半透明遮罩讓背景圖不要太搶眼 */
+        #level-screen::before {
+            content: "";
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.85);
+            z-index: -1;
+            border-radius: 10px;
         }
-        .dashboard-left { border-top: 5px solid var(--primary-color); }
-        .dashboard-right { border-top: 5px solid var(--quick-mode-color); background: #fdfaff; }
 
-        .section-title { font-size: 1.4em; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
-        
-        /* Grid Level Layout */
-        .level-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 15px; 
-            margin-bottom: 20px;
+        @media (orientation: portrait) {
+            #level-screen { min-height: 80vh; background-position: center top; }
+            .level-map-container { gap: 30px; margin-top: 40px; }
         }
-        .level-cell {
-            aspect-ratio: 1; border-radius: 12px; border: 2px solid #ddd;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            cursor: pointer; transition: all 0.2s; background: #fff; position: relative;
-            color: #7f8c8d;
-        }
-        .level-cell:hover:not(:disabled) { transform: translateY(-3px); border-color: var(--primary-color); color: var(--primary-color); box-shadow: 0 5px 10px rgba(0,0,0,0.1); }
-        .level-cell.locked { background: #f0f0f0; cursor: not-allowed; opacity: 0.7; }
-        .level-cell .lvl-num { font-size: 1.5em; font-weight: bold; }
-        .level-cell .lvl-score { font-size: 0.8em; margin-top: 2px; }
-        .level-cell.completed { border-color: var(--correct-color); color: var(--correct-color); background: #f0fff4; }
 
-        /* Waterfall Mode Styles */
-        #waterfall-screen { display: none; }
-        .waterfall-header {
-            position: sticky; top: 100px; z-index: 100;
-            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(5px);
-            padding: 10px 20px; border-bottom: 2px solid #ddd; border-radius: 0 0 15px 15px;
-            display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05); 
-            margin: -30px -30px 20px -30px; /* Counteract container padding */
-        }
-        .wf-title { font-size: 1.2em; font-weight: bold; color: var(--quick-mode-color); }
-        .wf-score-board { font-size: 1.1em; font-weight: bold; color: var(--text-color); }
+        .level-map-container { display: flex; flex-direction: column; align-items: center; gap: 15px; margin: 20px 0; }
+        .level-row { display: flex; justify-content: center; align-items: center; gap: 20px; }
+        .level-row.reverse { flex-direction: row-reverse; }
+        .level-wrapper { display: flex; align-items: center; position: relative; }
         
-        .wf-list { display: flex; flex-direction: column; gap: 20px; }
-        .wf-card {
-            background: white; border-radius: 10px; padding: 20px; border: 1px solid #e1e8ed;
-            position: relative; transition: all 0.3s;
+        .map-avatar {
+            position: absolute; top: -60px; left: 50%; transform: translateX(-50%);
+            width: 60px; height: 60px; z-index: 10;
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.2));
+            animation: float 2s infinite ease-in-out;
+            background: white; border-radius: 50%; padding: 2px;
         }
-        .wf-card.answered { border-color: #bdc3c7; background: #f9f9f9; }
-        .wf-card-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
-        .wf-badge { background: var(--secondary-color); color: white; padding: 3px 8px; border-radius: 5px; font-size: 0.9em; }
-        
-        .wf-actions { display: flex; gap: 5px; }
-        .wf-action-btn { 
-            background: none; border: none; font-size: 1.3em; cursor: pointer; color: #ccc; transition: 0.2s; 
-            padding: 0 5px;
+        @keyframes float {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-10px); }
         }
-        .wf-action-btn.active { color: var(--favorite-color); transform: scale(1.1); }
-        .wf-action-btn:hover { transform: scale(1.1); }
-        .wf-action-btn.delete-btn:hover { color: var(--wrong-color); }
 
-        .wf-question-text { font-size: 1.2em; font-weight: bold; margin-bottom: 15px; color: #2c3e50; line-height: 1.5; }
-        .wf-img { max-width: 100%; max-height: 200px; display: block; margin: 10px 0; border-radius: 5px; border: 1px solid #eee; }
-        
-        .wf-options { display: grid; gap: 10px; }
-        .wf-opt-btn {
-            width: 100%; padding: 12px; text-align: left; background: white; border: 1px solid #bdc3c7;
-            border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 1.1em;
+        /* 關卡按鈕改為六角形或圓形，這裡維持圓形但風格更現代 */
+        .level-btn {
+            background-color: #fff; 
+            border: 4px solid var(--primary-color);
+            border-radius: 15px; /* 稍微圓角矩形，像元素方塊 */
+            width: 90px;
+            height: 90px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: 0.2s;
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 0 #bdc3c7;
+            position: relative;
+            z-index: 2;
         }
-        .wf-opt-btn:hover:not(:disabled) { border-color: var(--primary-color); background: #f0f8ff; }
-        .wf-opt-btn:disabled { cursor: default; color: #7f8c8d; }
-        
-        .wf-opt-btn.correct { background: #d4edda; border-color: var(--correct-color); color: #155724; font-weight: bold; }
-        .wf-opt-btn.wrong { background: #f8d7da; border-color: var(--wrong-color); color: #721c24; }
-        .wf-opt-btn.missed { border-color: var(--correct-color); color: var(--correct-color); border-style: dashed; }
+        .level-title { white-space: nowrap; font-weight: bold; margin-bottom: 5px; font-size: 0.9em; }
+        .level-btn:hover:not(:disabled) { background-color: #eaf2f8; transform: translateY(-3px); box-shadow: 0 6px 0 #bdc3c7; }
+        .level-btn:active:not(:disabled) { transform: translateY(2px); box-shadow: none; }
+        .level-btn:disabled { background-color: #ecf0f1; border-color: #bdc3c7; color: #bdc3c7; cursor: not-allowed; box-shadow: none; }
+        .level-score { font-size: 0.8em; color: var(--correct-color); font-weight: bold; }
 
-        .wf-explanation {
-            margin-top: 15px; padding: 15px; background: #eaf2f8; border-radius: 8px;
-            font-size: 0.95em; border-left: 4px solid var(--secondary-color); display: none;
+        .arrow-icon {
+            font-size: 2em; color: var(--secondary-color); margin: 0 5px;
+            text-shadow: 1px 1px 0 rgba(0,0,0,0.1); 
+            z-index: 1; display: block;
         }
+        .arrow-right { animation: pulseRight 2s infinite; }
+        .arrow-left { animation: pulseLeft 2s infinite; transform: scaleX(-1); }
+        .arrow-down { animation: pulseDown 2s infinite; font-size: 2.5em; line-height: 0.5; margin: -5px 0; }
+        
+        @keyframes pulseRight { 0%, 100% { transform: translateX(0); opacity: 0.6; } 50% { transform: translateX(5px); opacity: 1; } }
+        @keyframes pulseLeft { 0%, 100% { transform: translateX(0) scaleX(-1); opacity: 0.6; } 50% { transform: translateX(-5px) scaleX(-1); opacity: 1; } }
+        @keyframes pulseDown { 0%, 100% { transform: translateY(0); opacity: 0.6; } 50% { transform: translateY(5px); opacity: 1; } }
+
+        .row-connector {
+            width: 100%; display: flex; height: 40px; align-items: center;
+            justify-content: flex-end; padding-right: 45px; box-sizing: border-box;
+        }
+        .row-connector.left { justify-content: flex-start; padding-left: 45px; padding-right: 0; }
 
         /* --- 元素圖鑑樣式 (Collection) --- */
         .collection-grid {
@@ -407,10 +409,18 @@
         }
 
         @media (max-width: 600px) {
-            .dashboard-container { flex-direction: column; }
+            .level-row, .level-row.reverse { flex-direction: column; gap: 0; }
+            .level-wrapper { flex-direction: column; margin-bottom: 10px; }
+            .arrow-right, .arrow-left, .row-connector { display: none; }
+            .level-wrapper::after {
+                content: '⬇'; font-size: 2em; color: var(--secondary-color);
+                animation: pulseDown 2s infinite; display: block; margin: 5px 0;
+            }
+            .level-wrapper:last-child::after { display: none; }
+            .map-avatar { top: 20px; left: -60px; transform: none; }
+            
             #music-player-bar { padding: 0 5px; height: 60px; }
             body { padding-top: 80px; }
-            .waterfall-header { top: 60px; }
             
             #yt-wrapper {
                 position: fixed; bottom: 10px; right: 10px; top: auto; left: auto; transform: none;
@@ -425,7 +435,7 @@
             .player-left { flex: 0; margin-right: 5px;}
         }
 
-        /* --- 標準題目樣式 --- */
+        /* --- 題目樣式 --- */
         .question-box { 
             background-color: #fff; 
             border-left: 6px solid var(--primary-color);
@@ -547,56 +557,33 @@
             </div>
         </div>
 
-        <div id="level-screen" style="display: none;" class="fade-in">
-            <div style="text-align: center; margin-bottom: 20px;">
-                <div style="background: rgba(255,255,255,0.95); padding:10px 20px; border-radius:30px; display:inline-block; border: 1px solid #bdc3c7; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+        <div id="level-screen" style="display: none; text-align: center;" class="fade-in">
+            <div style="background: rgba(255,255,255,0.9); padding:10px 20px; border-radius:30px; display:inline-block; margin-bottom:20px; border: 1px solid #bdc3c7; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                <h2 style="margin:0; color: #2c3e50; font-size: 1.4em;">🗺️ 元素探索地圖</h2>
+                <p style="font-size: 1.1em; margin:5px; color: #555;">
                     <img id="user-avatar-display" src="" style="width:30px; vertical-align:middle; border-radius:50%; border:1px solid #bdc3c7;">
                     研究員：<span id="display-name" style="color:var(--primary-color); font-weight:bold;"></span>
-                </div>
+                </p>
             </div>
-
-            <div class="dashboard-container">
-                <!-- 左側：標準實驗模式 -->
-                <div class="dashboard-section dashboard-left">
-                    <div class="section-title" style="color: var(--primary-color);">
-                        <span>🧪 標準實驗模式</span>
-                    </div>
-                    <div id="level-grid" class="level-grid"></div>
-                    <div id="resume-standard-area" style="text-align: center; margin-top: auto; display: none;">
-                        <button class="btn btn-green btn-sm" onclick="resumeStandardQuiz()">↪️ 繼續上次的實驗</button>
-                    </div>
-                </div>
-
-                <!-- 右側：極速刷題區 -->
-                <div class="dashboard-section dashboard-right">
-                    <div class="section-title" style="color: var(--quick-mode-color);">
-                        <span>⚡ 極速刷題區</span>
-                    </div>
-                    <div style="flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:15px; text-align:center;">
-                        <p style="color:#666;">全範圍題庫隨機排列<br>瀑布流模式快速複習</p>
-                        <button class="btn btn-purple" style="width: 100%; font-size: 1.3em;" onclick="startWaterfallQuiz('speed')">🚀 開始刷題 (全範圍)</button>
-                        <div style="display:flex; gap:10px; width:100%; justify-content:center; flex-wrap:wrap;">
-                            <button id="btn-mistake" class="btn btn-red btn-sm" onclick="startWaterfallQuiz('mistake')" style="display:none; flex:1;">📕 筆記 (<span id="mistake-count">0</span>)</button>
-                            <button id="btn-favorite" class="btn btn-pink btn-sm" onclick="startWaterfallQuiz('favorite')" style="display:none; flex:1;">⭐ 收藏 (<span id="favorite-count">0</span>)</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div style="margin-top: 30px; text-align: center; padding:20px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;">
+            
+            <div id="level-map" class="level-map-container"></div>
+            
+            <div style="margin-top: 30px; background: rgba(255,255,255,0.9); padding:20px; border-radius:15px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; border: 1px solid #e1e8ed;">
+                <button id="btn-mistake" class="btn btn-red" onclick="startQuiz('mistake')" style="display:none;">📕 實驗筆記 (<span id="mistake-count">0</span>)</button>
+                <button id="btn-favorite" class="btn btn-pink" onclick="startQuiz('favorite')" style="display:none;">⭐ 重點收藏 (<span id="favorite-count">0</span>)</button>
                 <button class="btn btn-blue" onclick="showCollection()">🧬 元素圖鑑</button>
                 <button class="btn btn-green" onclick="showHistory()">🏆 榮譽榜</button>
+                
                 <button class="btn btn-gray" onclick="logout()">🚪 離開實驗室</button>
             </div>
         </div>
 
-        <!-- 標準單題測驗模式 -->
         <div id="quiz-content" style="display: none;" class="fade-in">
             <div class="quiz-header">
                 <h3 id="level-title" style="margin:0; font-size: 1.5em; color: #2c3e50;">實驗 X</h3>
                 
                 <div class="header-controls">
-                    <button id="btn-toggle-favorite-std" class="btn btn-sm" style="background-color:#FFF; border:2px solid var(--favorite-color); color:var(--favorite-color); font-size:1.2em;" onclick="toggleStandardFavorite()" title="收藏/取消">☆</button>
+                    <button id="btn-toggle-favorite" class="btn btn-sm" style="background-color:#FFF; border:2px solid var(--favorite-color); color:var(--favorite-color); font-size:1.2em;" onclick="toggleFavorite()" title="收藏/取消">☆</button>
                     <button class="btn btn-gray btn-sm" style="margin:0;" onclick="exitQuiz()">🏠 返回地圖</button>
                 </div>
             </div>
@@ -621,21 +608,6 @@
             </div>
 
             <button id="next-btn" class="btn" style="display: none; width: 100%; margin-top: 25px;" onclick="nextQuestion()">下一個實驗 ➡️</button>
-        </div>
-
-        <!-- 瀑布流刷題模式 -->
-        <div id="waterfall-screen" class="fade-in" style="display:none;">
-            <div class="waterfall-header">
-                <div class="wf-title" id="wf-mode-title">⚡ 極速刷題</div>
-                <div class="wf-score-board">
-                    正確: <span id="wf-score" style="color:var(--correct-color)">0</span> / <span id="wf-total">0</span>
-                </div>
-                <button class="btn btn-gray btn-sm" onclick="exitWaterfallQuiz()">🏠 結束</button>
-            </div>
-            <div id="wf-list" class="wf-list"></div>
-            <div style="text-align:center; padding: 30px; color: #888;">
-                🏁 已到達底部
-            </div>
         </div>
 
         <div id="score-box" style="display: none; text-align: center;" class="fade-in">
@@ -701,11 +673,15 @@
     <script src="https://www.youtube.com/iframe_api"></script>
 
     <script>
-        // 關卡配置
+        // 調整為適合大量題目的關卡配置 (每關20題，依題目量調整)
+        // 第1關到第5關為20題，第6關為23題，共123題
         const LEVEL_CONFIG = [20, 20, 20, 20, 20, 23];
+        const ITEMS_PER_ROW = 4;
         
-        // YouTube 播放清單
-        const YOUTUBE_PLAYLIST = ['aGZk0nEBWv4'];
+        // YouTube 播放清單 (ID)
+        const YOUTUBE_PLAYLIST = [
+            'aGZk0nEBWv4' 
+        ];
         
         // 播放模式
         const MODES = [
@@ -714,6 +690,7 @@
             { name: '隨機播放', icon: '🔀' }
         ];
         
+        // 設定資料儲存前綴，改為理化相關，並更新為 6-3
         const APP_PREFIX = 'Nature3-6-3_';
 
         let player; 
@@ -723,69 +700,167 @@
         let playMode = 0; 
         let isVideoVisible = true; 
         
-        let allQuestions = [];
-        let userName = "", currentAvatar = "Chris.png";
+        let allQuestions = [], currentQuizQuestions = [], currentQuestionIndex = 0, score = 0;
+        let userName = "", currentLevel = 1, userAnswers = {}, isMistakeMode = false, isFavoriteMode = false;
+        let currentAvatar = "Chris.png"; 
         
-        // --- Standard Quiz Variables ---
-        let currentQuizQuestions = [], currentQuestionIndex = 0, score = 0;
-        let currentLevel = 1, userAnswers = {};
-        
-        // --- Waterfall Quiz Variables ---
-        let wfQuestions = [];
-        let wfState = { answers: {}, correctCount: 0 }; 
-        let currentWfMode = ''; // 'speed', 'mistake', 'favorite'
-
         let audioCorrect = new Audio('sounds/correct.mp3'); audioCorrect.volume = 0.4;
         let audioFail = new Audio('sounds/fail.mp3'); audioFail.volume = 0.4;
         
-        // --- YouTube API ---
+        // --- YouTube API 整合函式 ---
+        
         function onYouTubeIframeAPIReady() {
             player = new YT.Player('yt-player', {
-                height: '100%', width: '100%', videoId: YOUTUBE_PLAYLIST[currentTrackIndex],
-                playerVars: { 'playsinline': 1, 'controls': 0, 'disablekb': 1, 'fs': 0, 'rel': 0 },
-                events: { 'onReady': onPlayerReady, 'onStateChange': onPlayerStateChange }
+                height: '100%',
+                width: '100%',
+                videoId: YOUTUBE_PLAYLIST[currentTrackIndex],
+                playerVars: {
+                    'playsinline': 1,
+                    'controls': 0, 
+                    'disablekb': 1,
+                    'fs': 0,
+                    'rel': 0
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
             });
         }
+
         function onPlayerReady(event) {
-            isPlayerReady = true; player.setVolume(document.getElementById('volume-slider').value); updateMusicUI();
-        }
-        function onPlayerStateChange(event) {
-            isPlaying = (event.data == YT.PlayerState.PLAYING);
-            if (event.data == YT.PlayerState.ENDED) handleTrackEnd();
+            isPlayerReady = true;
+            const vol = document.getElementById('volume-slider').value;
+            player.setVolume(vol);
             updateMusicUI();
         }
+
+        function onPlayerStateChange(event) {
+            if (event.data == YT.PlayerState.PLAYING) {
+                isPlaying = true;
+            } else if (event.data == YT.PlayerState.PAUSED || event.data == YT.PlayerState.ENDED) {
+                isPlaying = false;
+            }
+            if (event.data == YT.PlayerState.ENDED) {
+                handleTrackEnd();
+            }
+            updateMusicUI();
+        }
+
         function updateMusicUI() {
-            document.getElementById('main-play-btn').innerText = isPlaying ? '⏸' : '▶';
+            const playBtn = document.getElementById('main-play-btn');
+            playBtn.innerText = isPlaying ? '⏸' : '▶';
             document.getElementById('mode-icon').innerText = MODES[playMode].icon;
             document.getElementById('mode-text').innerText = MODES[playMode].name;
         }
+
         function toggleVideoDisplay() {
             const wrapper = document.getElementById('yt-wrapper');
             const btn = document.getElementById('toggle-video-btn');
             const isMobile = window.innerWidth <= 600;
-            if (isMobile) { wrapper.classList.toggle('mobile-visible'); isVideoVisible = wrapper.classList.contains('mobile-visible'); }
-            else { wrapper.classList.toggle('video-hidden'); isVideoVisible = !wrapper.classList.contains('video-hidden'); }
-            if (isVideoVisible) { btn.classList.add('active'); btn.innerText = '👁️'; btn.title = "隱藏畫面"; } 
-            else { btn.classList.remove('active'); btn.innerText = '🕶️'; btn.title = "顯示畫面"; }
-        }
-        function playMusic() { if(isPlayerReady) player.playVideo(); }
-        function togglePlay() { if(isPlayerReady) isPlaying ? player.pauseVideo() : player.playVideo(); }
-        function setVolume(val) { if(isPlayerReady) player.setVolume(val); }
-        function prevTrack() { if(!isPlayerReady) return; currentTrackIndex = (currentTrackIndex - 1 + YOUTUBE_PLAYLIST.length) % YOUTUBE_PLAYLIST.length; loadAndPlayTrack(); }
-        function nextTrack() { if(!isPlayerReady) return; currentTrackIndex = (currentTrackIndex + 1) % YOUTUBE_PLAYLIST.length; loadAndPlayTrack(); }
-        function loadAndPlayTrack() { player.loadVideoById(YOUTUBE_PLAYLIST[currentTrackIndex]); }
-        function handleTrackEnd() { if (playMode === 1) { player.seekTo(0); player.playVideo(); } else nextTrack(); }
-        function changeMode() { playMode = (playMode + 1) % MODES.length; updateMusicUI(); }
 
-        // --- Data Loading & Auth ---
+            if (isMobile) {
+                wrapper.classList.toggle('mobile-visible');
+                isVideoVisible = wrapper.classList.contains('mobile-visible');
+            } else {
+                wrapper.classList.toggle('video-hidden');
+                isVideoVisible = !wrapper.classList.contains('video-hidden');
+            }
+
+            if (isVideoVisible) {
+                btn.classList.add('active');
+                btn.innerText = '👁️';
+                btn.title = "隱藏畫面";
+            } else {
+                btn.classList.remove('active');
+                btn.innerText = '🕶️';
+                btn.title = "顯示畫面";
+            }
+        }
+
+        function playMusic() { 
+            if(!isPlayerReady) return;
+            player.playVideo();
+        }
+
+        function togglePlay() { 
+            if(!isPlayerReady) return;
+            if (isPlaying) { 
+                player.pauseVideo();
+            } else { 
+                player.playVideo();
+            }
+        }
+        
+        function setVolume(val) {
+            if(isPlayerReady) player.setVolume(val);
+        }
+
+        function prevTrack() {
+            if(!isPlayerReady) return;
+            if (player.getCurrentTime() > 3) {
+                player.seekTo(0);
+                return;
+            }
+
+            if (playMode === 2) { 
+                 let newIndex = currentTrackIndex;
+                 while (newIndex === currentTrackIndex && YOUTUBE_PLAYLIST.length > 1) {
+                     newIndex = Math.floor(Math.random() * YOUTUBE_PLAYLIST.length);
+                 }
+                 currentTrackIndex = newIndex;
+            } else {
+                currentTrackIndex = (currentTrackIndex - 1 + YOUTUBE_PLAYLIST.length) % YOUTUBE_PLAYLIST.length;
+            }
+            loadAndPlayTrack();
+        }
+
+        function nextTrack() { 
+            if(!isPlayerReady) return;
+            if (playMode === 2) { 
+                let newIndex = currentTrackIndex;
+                while (newIndex === currentTrackIndex && YOUTUBE_PLAYLIST.length > 1) {
+                    newIndex = Math.floor(Math.random() * YOUTUBE_PLAYLIST.length);
+                }
+                currentTrackIndex = newIndex;
+            } else {
+                currentTrackIndex = (currentTrackIndex + 1) % YOUTUBE_PLAYLIST.length; 
+            }
+            loadAndPlayTrack();
+        }
+        
+        function loadAndPlayTrack() {
+            player.loadVideoById(YOUTUBE_PLAYLIST[currentTrackIndex]);
+        }
+        
+        function handleTrackEnd() {
+            if (playMode === 1) { 
+                player.seekTo(0);
+                player.playVideo();
+            } else {
+                nextTrack(); 
+            }
+        }
+
+        function changeMode() {
+            playMode = (playMode + 1) % MODES.length;
+            updateMusicUI();
+        }
+
         fetch('questions.json').then(res => res.json()).then(data => { allQuestions = data; renderQuickLogin(); }).catch(e => console.error(e));
+
         function getUserKey(key) { return APP_PREFIX + userName + '_' + key; }
+
         function selectAvatar(filename, element) {
             currentAvatar = filename;
             document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));
             element.classList.add('selected');
         }
-        function getSavedUsers() { return JSON.parse(localStorage.getItem(APP_PREFIX + 'savedUsers')) || []; }
+
+        function getSavedUsers() { 
+            return JSON.parse(localStorage.getItem(APP_PREFIX + 'savedUsers')) || []; 
+        }
+
         function renderQuickLogin() {
             let users = getSavedUsers();
             let container = document.getElementById('quick-login-area');
@@ -810,11 +885,11 @@
             loginAndStart();
         }
         function deleteUser(name) {
-            if (!confirm(`確定要刪除「${name}」的所有實驗數據嗎？`)) return;
-            // 清除該使用者的所有關聯資料
-            Object.keys(localStorage).forEach(key => {
-                if(key.startsWith(APP_PREFIX + name)) localStorage.removeItem(key);
-            });
+            if (!confirm(`確定要刪除「${name}」的所有實驗數據嗎？\n(包含紀錄、錯題本)`)) return;
+            localStorage.removeItem(APP_PREFIX + name + '_mistakeBank');
+            localStorage.removeItem(APP_PREFIX + name + '_favoriteBank'); 
+            localStorage.removeItem(APP_PREFIX + name + '_quizHistory');
+            localStorage.removeItem(APP_PREFIX + name + '_quizProgress');
             let users = getSavedUsers();
             users = users.filter(u => (typeof u === 'string' ? u : u.name) !== name);
             localStorage.setItem(APP_PREFIX + 'savedUsers', JSON.stringify(users));
@@ -826,22 +901,20 @@
             userName = inputName;
             localStorage.setItem(APP_PREFIX + 'quizUserName', userName);
             localStorage.setItem(APP_PREFIX + 'quizUserAvatar', currentAvatar);
-            
+
             let users = getSavedUsers();
-            if(!users.some(u => (typeof u === 'string' ? u : u.name) === userName)) {
-                users.push({ name: userName, avatar: currentAvatar });
-                localStorage.setItem(APP_PREFIX + 'savedUsers', JSON.stringify(users));
-            }
+            users = users.filter(u => (typeof u === 'string' ? u : u.name) !== userName);
+            users.push({ name: userName, avatar: currentAvatar });
+            localStorage.setItem(APP_PREFIX + 'savedUsers', JSON.stringify(users));
 
             if (!isPlaying && isPlayerReady) playMusic();
             goToLevelScreen();
         }
-        function logout() { location.reload(); }
 
-        // --- Dashboard & Navigation ---
         function getProgress() { 
             return JSON.parse(localStorage.getItem(getUserKey('quizProgress'))) || { maxLevel: 1, levelScores: {} }; 
         }
+        
         function saveProgress(level, score) {
             let progress = getProgress();
             if (!progress.levelScores[level] || score > progress.levelScores[level]) progress.levelScores[level] = score;
@@ -850,121 +923,102 @@
         }
 
         function goToLevelScreen() {
-            // 清理介面
             document.getElementById('display-name').innerText = userName;
             document.getElementById('user-avatar-display').src = "images/" + currentAvatar;
             document.querySelectorAll('.quiz-container > div').forEach(el => el.style.display = 'none');
             document.getElementById('level-screen').style.display = 'block';
-            
-            // 渲染左側標準模式 Grid
-            renderLevelGrid(); 
-            // 更新右側按鈕狀態
+            renderLevelMap(); 
             updateMistakeButton();
-            updateFavoriteButton();
-            // 檢查標準模式存檔
-            checkStandardResume();
+            updateFavoriteButton(); 
         }
 
-        function renderLevelGrid() {
-            const container = document.getElementById('level-grid'); container.innerHTML = "";
+        function renderLevelMap() {
+            const container = document.getElementById('level-map'); container.innerHTML = "";
             const progress = getProgress();
-            
-            LEVEL_CONFIG.forEach((_, index) => {
-                let levelNum = index + 1;
-                let cell = document.createElement('div');
-                cell.className = 'level-cell';
-                
-                if (levelNum <= progress.maxLevel) {
-                    let bestScore = progress.levelScores[levelNum];
-                    let icon = '⚗️';
-                    if (bestScore === 100) { cell.classList.add('completed'); icon = '🔬'; }
-                    else if (bestScore >= 70) { cell.classList.add('completed'); icon = '🧪'; }
-                    
-                    let scoreHtml = bestScore !== undefined ? `<span class="lvl-score">${bestScore}%</span>` : `<span class="lvl-score">--</span>`;
-                    
-                    cell.innerHTML = `<div>${icon}</div><div class="lvl-num">${levelNum}</div>${scoreHtml}`;
-                    cell.onclick = () => startQuiz(levelNum);
-                } else {
-                    cell.className += ' locked';
-                    cell.innerHTML = `<div>🔒</div><div class="lvl-num">${levelNum}</div>`;
+            let rows = [];
+            for (let i = 0; i < LEVEL_CONFIG.length; i += ITEMS_PER_ROW) rows.push(LEVEL_CONFIG.slice(i, i + ITEMS_PER_ROW));
+            rows.forEach((rowItems, rowIndex) => {
+                let rowDiv = document.createElement('div'); rowDiv.className = 'level-row';
+                let isReverse = (rowIndex % 2 !== 0); if (isReverse) rowDiv.classList.add('reverse');
+                let startLevelNum = rowIndex * ITEMS_PER_ROW + 1;
+                rowItems.forEach((_, itemIndex) => {
+                    let levelNum = startLevelNum + itemIndex;
+                    let wrapper = document.createElement('div'); wrapper.className = 'level-wrapper';
+                    let btn = document.createElement('button'); btn.className = 'level-btn';
+                    if (levelNum <= progress.maxLevel) {
+                        let bestScore = progress.levelScores[levelNum];
+                        let icon = bestScore >= 70 ? '🧪' : '⚗️';
+                        if (bestScore === 100) icon = '🔬'; else if (bestScore >= 90) icon = '⚛️';
+                        let scoreText = bestScore !== undefined ? `<div class="level-score">${bestScore}分</div>` : '<div class="level-score">未進行</div>';
+                        btn.innerHTML = `<div class="level-title">${icon} 實驗${levelNum}</div>${scoreText}`;
+                        btn.onclick = () => startQuiz('level', levelNum);
+                        if (levelNum === progress.maxLevel) {
+                            let avatarImg = document.createElement('img'); avatarImg.src = "images/" + currentAvatar; avatarImg.className = "map-avatar"; wrapper.appendChild(avatarImg);
+                        }
+                    } else {
+                        btn.disabled = true; btn.innerHTML = `<div class="level-title">🔒 實驗${levelNum}</div><div class="level-score" style="color:#bdc3c7">權限不足</div>`;
+                    }
+                    wrapper.appendChild(btn);
+                    if (itemIndex < rowItems.length - 1) {
+                        let arrow = document.createElement('div'); arrow.className = 'arrow-icon';
+                        if (isReverse) { arrow.innerHTML = '➜'; arrow.classList.add('arrow-left'); } else { arrow.innerText = '➜'; arrow.classList.add('arrow-right'); }
+                        wrapper.appendChild(arrow);
+                    }
+                    rowDiv.appendChild(wrapper);
+                });
+                container.appendChild(rowDiv);
+                if (rowIndex < rows.length - 1) {
+                    let connectorDiv = document.createElement('div'); connectorDiv.className = 'row-connector';
+                    let downArrow = document.createElement('div'); downArrow.className = 'arrow-icon arrow-down'; downArrow.innerText = '⬇';
+                    if (isReverse) connectorDiv.classList.add('left');
+                    connectorDiv.appendChild(downArrow); container.appendChild(connectorDiv);
                 }
-                container.appendChild(cell);
             });
         }
 
-        // --- Standard Quiz Logic ---
-        function checkStandardResume() {
-            let resumeData = localStorage.getItem(getUserKey('standard_resume'));
-            let btn = document.getElementById('resume-standard-area');
-            if (resumeData) btn.style.display = 'block'; else btn.style.display = 'none';
-        }
+        function logout() { location.reload(); }
+        function exitQuiz() { if(confirm("確定要中止實驗，返回地圖嗎？")) goToLevelScreen(); }
 
-        function startQuiz(levelNum) {
-            // 清除之前的 resume，因為是從選單開始新實驗
-            localStorage.removeItem(getUserKey('standard_resume'));
-            initStandardQuiz(levelNum);
-        }
-
-        function resumeStandardQuiz() {
-            let resumeData = JSON.parse(localStorage.getItem(getUserKey('standard_resume')));
-            if (resumeData) {
-                currentLevel = resumeData.level;
-                currentQuizQuestions = allQuestions.slice(resumeData.range[0], resumeData.range[1]);
-                currentQuestionIndex = resumeData.index;
-                score = resumeData.score;
-                userAnswers = resumeData.answers;
-                launchStandardQuizUI();
+        function startQuiz(mode, levelNum) {
+            isMistakeMode = (mode === 'mistake');
+            isFavoriteMode = (mode === 'favorite'); 
+            userAnswers = {}; score = 0; currentQuestionIndex = 0;
+            
+            if (isMistakeMode) {
+                let mistakeIds = JSON.parse(localStorage.getItem(getUserKey('mistakeBank'))) || [];
+                currentQuizQuestions = allQuestions.filter(q => mistakeIds.includes(q.id));
+                document.getElementById('level-title').innerText = "📕 實驗筆記";
+            } else if (isFavoriteMode) { 
+                let favIds = JSON.parse(localStorage.getItem(getUserKey('favoriteBank'))) || [];
+                currentQuizQuestions = allQuestions.filter(q => favIds.includes(q.id));
+                document.getElementById('level-title').innerText = "⭐ 重點收藏";
             } else {
-                alert("存檔已過期");
-                goToLevelScreen();
+                currentLevel = levelNum;
+                let startIndex = 0; for (let i = 0; i < levelNum - 1; i++) { startIndex += LEVEL_CONFIG[i]; }
+                let endIndex = startIndex + LEVEL_CONFIG[levelNum - 1];
+                if (allQuestions.length < endIndex) { alert(`實驗器材準備中，請稍後再試。`); return; }
+                currentQuizQuestions = allQuestions.slice(startIndex, endIndex);
+                document.getElementById('level-title').innerText = `🔬 實驗 ${levelNum}`;
             }
-        }
-
-        function initStandardQuiz(levelNum) {
-            currentLevel = levelNum;
-            let startIndex = 0; for (let i = 0; i < levelNum - 1; i++) { startIndex += LEVEL_CONFIG[i]; }
-            let endIndex = startIndex + LEVEL_CONFIG[levelNum - 1];
-            
-            if (allQuestions.length < endIndex) { alert(`實驗器材準備中...`); return; }
-            currentQuizQuestions = allQuestions.slice(startIndex, endIndex);
-            currentQuestionIndex = 0; score = 0; userAnswers = {};
-            
-            launchStandardQuizUI();
-        }
-
-        function launchStandardQuizUI() {
+            if (currentQuizQuestions.length === 0) { alert("目前無實驗項目！"); return; }
             document.getElementById('level-screen').style.display = 'none';
             document.getElementById('quiz-content').style.display = 'block';
-            document.getElementById('level-title').innerText = `🔬 實驗 ${currentLevel}`;
             document.getElementById('total-q-num').innerText = currentQuizQuestions.length;
             loadQuestion();
         }
 
         function loadQuestion() {
-            // Save Progress Auto-Save
-            let startIndex = 0; for (let i = 0; i < currentLevel - 1; i++) { startIndex += LEVEL_CONFIG[i]; }
-            let endIndex = startIndex + LEVEL_CONFIG[currentLevel - 1];
-            let resumeData = {
-                level: currentLevel, range: [startIndex, endIndex], 
-                index: currentQuestionIndex, score: score, answers: userAnswers
-            };
-            localStorage.setItem(getUserKey('standard_resume'), JSON.stringify(resumeData));
-
             const currentQuestion = currentQuizQuestions[currentQuestionIndex];
-            
-            // 處理題目文字，移除可能存在的 "1. " 或 "01. "
-            let qText = currentQuestion.question.replace(/^\d+[\.\、]\s*/, '');
-            
-            document.getElementById('question-text').innerText = qText;
-            document.getElementById('progress-bar').style.width = ((currentQuestionIndex) / currentQuizQuestions.length) * 100 + "%";
+            let qContainer = document.getElementById('question-container');
+            qContainer.classList.remove('fade-in'); void qContainer.offsetWidth; qContainer.classList.add('fade-in');
+            let progress = ((currentQuestionIndex) / currentQuizQuestions.length) * 100;
+            document.getElementById('progress-bar').style.width = progress + "%";
             document.getElementById('current-q-num').innerText = currentQuestionIndex + 1;
-            
-            const imgElement = document.getElementById('question-image');
-            if (currentQuestion.image) { imgElement.src = currentQuestion.image; imgElement.style.display = 'block'; } else { imgElement.style.display = 'none'; }
-            
+            document.getElementById('question-text').innerText = currentQuestion.question;
             document.getElementById('explanation').style.display = 'none'; 
             document.getElementById('next-btn').style.display = 'none';
-
+            const imgElement = document.getElementById('question-image');
+            if (currentQuestion.image) { imgElement.src = currentQuestion.image; imgElement.style.display = 'block'; } else { imgElement.style.display = 'none'; }
             const optionsList = document.getElementById('options-list'); optionsList.innerHTML = '';
             currentQuestion.options.forEach(option => {
                 const li = document.createElement('li'); const button = document.createElement('button');
@@ -972,18 +1026,53 @@
                 button.onclick = () => checkAnswer(button, option, currentQuestion);
                 li.appendChild(button); optionsList.appendChild(li);
             });
-            updateStandardFavoriteUI();
+            updateFavoriteUI(); 
+        }
+
+        function getFavoriteBank() { return JSON.parse(localStorage.getItem(getUserKey('favoriteBank'))) || []; }
+        
+        function updateFavoriteButton() {
+            let favs = getFavoriteBank();
+            let btn = document.getElementById('btn-favorite');
+            if (favs.length > 0) { 
+                btn.style.display = 'inline-block'; 
+                document.getElementById('favorite-count').innerText = favs.length; 
+            } else {
+                btn.style.display = 'none';
+            }
+        }
+
+        function toggleFavorite() {
+            const currentQ = currentQuizQuestions[currentQuestionIndex];
+            let favs = getFavoriteBank();
+            if (favs.includes(currentQ.id)) {
+                favs = favs.filter(id => id !== currentQ.id);
+            } else {
+                favs.push(currentQ.id);
+            }
+            localStorage.setItem(getUserKey('favoriteBank'), JSON.stringify(favs));
+            updateFavoriteUI();
+        }
+
+        function updateFavoriteUI() {
+            const currentQ = currentQuizQuestions[currentQuestionIndex];
+            let favs = getFavoriteBank();
+            let btn = document.getElementById('btn-toggle-favorite');
+            if (favs.includes(currentQ.id)) {
+                btn.innerText = '★'; 
+            } else {
+                btn.innerText = '☆'; 
+            }
         }
 
         function checkAnswer(btn, selectedOption, questionData) {
             const buttons = document.querySelectorAll('.option-btn'); buttons.forEach(button => button.disabled = true); 
             userAnswers[questionData.id] = selectedOption;
             const selectedCode = selectedOption.substring(0, 3); const correctCode = questionData.answer.substring(0, 3);
-            
             if (selectedCode === correctCode) {
                 btn.classList.add('correct'); score++; audioCorrect.play().catch(e=>{});
                 confetti({ particleCount: 50, spread: 50, origin: { y: 0.7 }, colors: ['#00c4cc', '#0056b3'] });
-                // Note: Standard mode doesn't remove mistakes
+                if (isMistakeMode) removeFromMistakeBank(questionData.id);
             } else {
                 btn.classList.add('wrong'); audioFail.play().catch(e=>{});
                 buttons.forEach(button => { if (button.innerText.substring(0, 3) === correctCode) button.classList.add('correct'); });
@@ -996,286 +1085,11 @@
 
         function nextQuestion() {
             currentQuestionIndex++;
-            if (currentQuestionIndex < currentQuizQuestions.length) loadQuestion(); 
-            else {
-                localStorage.removeItem(getUserKey('standard_resume')); // 實驗結束，清除暫存
-                setTimeout(showResult, 500);
-            }
-        }
-        
-        function exitQuiz() { 
-            if(confirm("確定要中止實驗，返回地圖嗎？\n(進度已保存，可稍後繼續)")) {
-                goToLevelScreen(); 
-            }
+            let progress = ((currentQuestionIndex) / currentQuizQuestions.length) * 100;
+            document.getElementById('progress-bar').style.width = progress + "%";
+            if (currentQuestionIndex < currentQuizQuestions.length) loadQuestion(); else setTimeout(showResult, 500);
         }
 
-        // --- Waterfall Quiz Logic (New Module) ---
-        
-        function startWaterfallQuiz(mode) {
-            currentWfMode = mode;
-            let resumeKey = getUserKey(`wf_resume_${mode}`);
-            let savedData = JSON.parse(localStorage.getItem(resumeKey));
-
-            if (savedData) {
-                if (confirm("檢測到上次未完成的刷題進度，是否繼續？")) {
-                    wfQuestions = allQuestions.filter(q => savedData.qIds.includes(q.id));
-                    // 按照原順序排序
-                    wfQuestions.sort((a,b) => savedData.qIds.indexOf(a.id) - savedData.qIds.indexOf(b.id));
-                    wfState = savedData.state;
-                    launchWaterfallUI();
-                    return;
-                } else {
-                    localStorage.removeItem(resumeKey);
-                }
-            }
-
-            // 新的刷題開始
-            wfState = { answers: {}, correctCount: 0 };
-            
-            if (mode === 'speed') {
-                wfQuestions = [...allQuestions];
-                // Shuffle logic
-                for (let i = wfQuestions.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [wfQuestions[i], wfQuestions[j]] = [wfQuestions[j], wfQuestions[i]];
-                }
-                document.getElementById('wf-mode-title').innerText = "⚡ 極速刷題 (全範圍)";
-            } else if (mode === 'mistake') {
-                let ids = getMistakeBank();
-                wfQuestions = allQuestions.filter(q => ids.includes(q.id));
-                document.getElementById('wf-mode-title').innerText = "📕 實驗筆記";
-            } else if (mode === 'favorite') {
-                let ids = getFavoriteBank();
-                wfQuestions = allQuestions.filter(q => ids.includes(q.id));
-                document.getElementById('wf-mode-title').innerText = "⭐ 重點收藏";
-            }
-
-            if (wfQuestions.length === 0) { alert("目前沒有題目！"); return; }
-            launchWaterfallUI();
-        }
-
-        function launchWaterfallUI() {
-            document.getElementById('level-screen').style.display = 'none';
-            document.getElementById('waterfall-screen').style.display = 'block';
-            
-            // Render Header Stats
-            updateWaterfallHeader();
-            
-            // Render List
-            const listContainer = document.getElementById('wf-list');
-            listContainer.innerHTML = "";
-            
-            wfQuestions.forEach((q, index) => {
-                // 處理題目文字
-                let qText = q.question.replace(/^\d+[\.\、]\s*/, '');
-                
-                let card = document.createElement('div');
-                card.className = 'wf-card';
-                card.id = `wf-card-${q.id}`;
-                
-                // Check if answered
-                let savedAns = wfState.answers[q.id];
-                if (savedAns) card.classList.add('answered');
-
-                // Build Options HTML
-                let optionsHtml = q.options.map(opt => {
-                    let btnClass = 'wf-opt-btn';
-                    let isDisabled = savedAns ? 'disabled' : '';
-                    let correctCode = q.answer.substring(0,3);
-                    let optCode = opt.substring(0,3);
-
-                    if (savedAns) {
-                        if (optCode === correctCode) btnClass += ' correct';
-                        else if (opt === savedAns) btnClass += ' wrong';
-                        // else if (optCode === correctCode && savedAns !== opt) btnClass += ' missed'; // Optional: highlight correct if missed
-                    }
-                    
-                    return `<button class="${btnClass}" ${isDisabled} onclick="checkWaterfallAnswer('${q.id}', '${opt}', this)">${opt}</button>`;
-                }).join('');
-
-                // Image HTML
-                let imgHtml = q.image ? `<img src="${q.image}" class="wf-img">` : '';
-
-                // Explanation HTML
-                let explainDisplay = savedAns ? 'block' : 'none';
-                let explanationHtml = `<div id="wf-explain-${q.id}" class="wf-explanation" style="display:${explainDisplay}"><strong>💡 解析：</strong>${q.explanation || '暫無說明'}</div>`;
-
-                // Favorites & Delete Action Buttons
-                let isFav = getFavoriteBank().includes(q.id);
-                let favClass = isFav ? 'active' : '';
-                
-                let deleteBtnHtml = '';
-                if (currentWfMode === 'mistake' || currentWfMode === 'favorite') {
-                    deleteBtnHtml = `<button class="wf-action-btn delete-btn" title="刪除此題" onclick="deleteFromWaterfall('${q.id}')">🗑️</button>`;
-                }
-
-                card.innerHTML = `
-                    <div class="wf-card-header">
-                        <span class="wf-badge">Q${index + 1}</span>
-                        <div class="wf-actions">
-                            ${deleteBtnHtml}
-                            <button id="wf-fav-${q.id}" class="wf-action-btn ${favClass}" title="收藏" onclick="toggleWaterfallFavorite('${q.id}')">❤</button>
-                        </div>
-                    </div>
-                    <div class="wf-question-text">${qText}</div>
-                    ${imgHtml}
-                    <div class="wf-options">${optionsHtml}</div>
-                    ${explanationHtml}
-                `;
-                listContainer.appendChild(card);
-            });
-            
-            // Auto-scroll to first unanswered? Optional.
-        }
-
-        function checkWaterfallAnswer(qId, selectedOpt, btn) {
-            if (wfState.answers[qId]) return; // Already answered
-
-            let qData = wfQuestions.find(q => q.id === qId);
-            let correctCode = qData.answer.substring(0,3);
-            let selectedCode = selectedOpt.substring(0,3);
-            let isCorrect = (selectedCode === correctCode);
-
-            // Update State
-            wfState.answers[qId] = selectedOpt;
-            if (isCorrect) {
-                wfState.correctCount++;
-                audioCorrect.play().catch(()=>{});
-                // Note: Waterfall mode doesn't auto-remove mistakes anymore
-            } else {
-                audioFail.play().catch(()=>{});
-                addToMistakeBank(qId);
-            }
-
-            // Save Progress
-            saveWaterfallProgress();
-
-            // Update UI
-            updateWaterfallHeader();
-            
-            // Update Card UI directly (without full re-render)
-            let card = document.getElementById(`wf-card-${qId}`);
-            card.classList.add('answered');
-            
-            let btns = card.querySelectorAll('.wf-opt-btn');
-            btns.forEach(b => {
-                b.disabled = true;
-                let optText = b.innerText;
-                if (optText.substring(0,3) === correctCode) b.classList.add('correct');
-                if (!isCorrect && optText === selectedOpt) b.classList.add('wrong');
-            });
-            
-            document.getElementById(`wf-explain-${qId}`).style.display = 'block';
-        }
-
-        function updateWaterfallHeader() {
-            document.getElementById('wf-score').innerText = wfState.correctCount;
-            document.getElementById('wf-total').innerText = wfQuestions.length;
-        }
-
-        function saveWaterfallProgress() {
-            let data = {
-                qIds: wfQuestions.map(q => q.id),
-                state: wfState
-            };
-            localStorage.setItem(getUserKey(`wf_resume_${currentWfMode}`), JSON.stringify(data));
-        }
-
-        function exitWaterfallQuiz() {
-            if (confirm("確定要結束刷題嗎？\n(進度已自動保存)")) {
-                goToLevelScreen();
-            }
-        }
-
-        function toggleWaterfallFavorite(qId) {
-            let favs = getFavoriteBank();
-            if (favs.includes(qId)) favs = favs.filter(id => id !== qId);
-            else favs.push(qId);
-            localStorage.setItem(getUserKey('favoriteBank'), JSON.stringify(favs));
-            
-            let btn = document.getElementById(`wf-fav-${qId}`);
-            if (favs.includes(qId)) btn.classList.add('active'); else btn.classList.remove('active');
-            updateFavoriteButton(); // update dashboard count
-        }
-
-        function deleteFromWaterfall(qId) {
-            if (confirm("⚠️ 確定要從清單中移除此題目嗎？")) {
-                if (confirm("⚠️ 請再次確認：移除後需要重新加入才能看到。確定刪除？")) {
-                    // Execute delete based on mode
-                    if (currentWfMode === 'mistake') removeFromMistakeBank(qId);
-                    else if (currentWfMode === 'favorite') {
-                        let favs = getFavoriteBank().filter(id => id !== qId);
-                        localStorage.setItem(getUserKey('favoriteBank'), JSON.stringify(favs));
-                    }
-                    
-                    // Remove from current list & UI
-                    wfQuestions = wfQuestions.filter(q => q.id !== qId);
-                    // Cleanup state
-                    delete wfState.answers[qId]; // Not strictly necessary but clean
-                    
-                    // Re-render UI to update numbers and list
-                    launchWaterfallUI();
-                    
-                    // Update resume data
-                    saveWaterfallProgress();
-                }
-            }
-        }
-
-        // --- Shared Logic ---
-
-        function getFavoriteBank() { return JSON.parse(localStorage.getItem(getUserKey('favoriteBank'))) || []; }
-        function updateFavoriteButton() {
-            let favs = getFavoriteBank();
-            let btn = document.getElementById('btn-favorite');
-            if (favs.length > 0) { 
-                btn.style.display = 'inline-block'; 
-                document.getElementById('favorite-count').innerText = favs.length; 
-            } else btn.style.display = 'none';
-        }
-
-        function getMistakeBank() { return JSON.parse(localStorage.getItem(getUserKey('mistakeBank'))) || []; }
-        function updateMistakeButton() {
-            let mistakes = getMistakeBank();
-            let btn = document.getElementById('btn-mistake');
-            if (mistakes.length > 0) { btn.style.display = 'inline-block'; document.getElementById('mistake-count').innerText = mistakes.length; } 
-            else btn.style.display = 'none';
-        }
-        function addToMistakeBank(id) {
-            let mistakes = getMistakeBank();
-            if (!mistakes.includes(id)) { mistakes.push(id); localStorage.setItem(getUserKey('mistakeBank'), JSON.stringify(mistakes)); }
-            updateMistakeButton();
-        }
-        function removeFromMistakeBank(id) {
-            let mistakes = getMistakeBank();
-            mistakes = mistakes.filter(mId => mId !== id);
-            localStorage.setItem(getUserKey('mistakeBank'), JSON.stringify(mistakes));
-            updateMistakeButton();
-        }
-
-        // --- Standard Mode Favorites ---
-        function toggleStandardFavorite() {
-            const currentQ = currentQuizQuestions[currentQuestionIndex];
-            let favs = getFavoriteBank();
-            if (favs.includes(currentQ.id)) favs = favs.filter(id => id !== currentQ.id);
-            else favs.push(currentQ.id);
-            localStorage.setItem(getUserKey('favoriteBank'), JSON.stringify(favs));
-            updateStandardFavoriteUI();
-            updateFavoriteButton();
-        }
-
-        function updateStandardFavoriteUI() {
-            const currentQ = currentQuizQuestions[currentQuestionIndex];
-            let favs = getFavoriteBank();
-            let btn = document.getElementById('btn-toggle-favorite-std');
-            if (favs.includes(currentQ.id)) {
-                btn.innerText = '★'; btn.style.background = var(--favorite-color); btn.style.color = 'white';
-            } else {
-                btn.innerText = '☆'; btn.style.background = 'white'; btn.style.color = var(--favorite-color);
-            }
-        }
-
-        // --- Result & Collection ---
         function showResult() {
             document.getElementById('quiz-content').style.display = 'none';
             document.getElementById('score-box').style.display = 'block';
@@ -1284,35 +1098,46 @@
             document.getElementById('final-name').innerText = userName;
             
             let comment = "", progress = getProgress(), isPass = finalScore >= 70;
+            
             if(finalScore === 100) comment = "🏆 諾貝爾獎等級！完美的實驗成果！"; 
             else if(finalScore >= 90) comment = "🌟 首席科學家！實驗非常精準！"; 
             else if(finalScore >= 70) comment = "🎉 實驗成功！數據符合預期！"; 
             else comment = "💥 實驗失敗！請重新檢查步驟與原理！";
-            document.getElementById('score-comment').innerText = comment;
             
-            // Check Unlock
+            document.getElementById('score-comment').innerText = comment;
             let unlockMsg = document.getElementById('unlock-msg');
             let newCardAlert = document.getElementById('new-card-alert');
             let gotNewCard = false;
-            
-            if (isPass) {
+
+            if (!isMistakeMode && !isFavoriteMode && isPass) {
                 if (finalScore >= 70) {
                     let oldScore = progress.levelScores[currentLevel];
-                    if (oldScore === undefined || oldScore < 70) gotNewCard = true;
+                    if (oldScore === undefined || oldScore < 70) {
+                        gotNewCard = true;
+                    }
                 }
-                if (currentLevel === progress.maxLevel && currentLevel < LEVEL_CONFIG.length) unlockMsg.style.display = 'block'; 
-                else unlockMsg.style.display = 'none';
+                
+                if (currentLevel === progress.maxLevel && currentLevel < LEVEL_CONFIG.length) {
+                    unlockMsg.style.display = 'block'; 
+                } else unlockMsg.style.display = 'none';
+                
                 confetti({ particleCount: 200, spread: 150, colors: ['#00c4cc', '#0056b3', '#FFF'] });
-            } else { unlockMsg.style.display = 'none'; }
+            } else {
+                unlockMsg.style.display = 'none';
+            }
             
             if(gotNewCard) newCardAlert.style.display = 'block'; else newCardAlert.style.display = 'none';
 
-            saveProgress(currentLevel, finalScore);
-            saveHistory(userName, finalScore, currentQuizQuestions, userAnswers, `實驗 ${currentLevel}`);
+            if (!isMistakeMode && !isFavoriteMode) saveProgress(currentLevel, finalScore);
+            
+            let modeName = `實驗 ${currentLevel}`;
+            if(isMistakeMode) modeName = "實驗筆記";
+            if(isFavoriteMode) modeName = "重點收藏";
+            
+            saveHistory(userName, finalScore, currentQuizQuestions, userAnswers, modeName);
             renderReviewList('review-list', currentQuizQuestions, userAnswers);
         }
 
-        // --- Reuse Collection & History Functions ---
         function showCollection() {
             document.querySelectorAll('.quiz-container > div').forEach(el => el.style.display = 'none');
             document.getElementById('collection-screen').style.display = 'block';
@@ -1328,20 +1153,48 @@
                 let numStr = i < 10 ? `0${i}` : `${i}`;
                 let imgSrc = `images/card_${numStr}.jpg`;
                 let cardItem = document.createElement('div');
+                
                 if (isUnlocked) {
                     cardItem.className = 'card-item';
                     cardItem.innerHTML = `<img src="${imgSrc}" class="card-img" onerror="this.style.display='none'">`;
                     cardItem.onclick = () => openCardModal(imgSrc, `實驗 ${i} 發現元素`);
                 } else {
                     cardItem.className = 'card-item locked';
-                    cardItem.innerHTML = `<img src="${imgSrc}" class="card-img" onerror="this.style.display='none'"><div class="card-overlay"><div class="card-lock-icon">🔒</div><div class="card-label">實驗 ${i}</div></div>`;
+                    cardItem.innerHTML = `
+                        <img src="${imgSrc}" class="card-img" onerror="this.style.display='none'">
+                        <div class="card-overlay">
+                            <div class="card-lock-icon">🔒</div>
+                            <div class="card-label">實驗 ${i}</div>
+                        </div>
+                    `;
                 }
                 grid.appendChild(cardItem);
             }
         }
-        function openCardModal(src, title) { document.getElementById('modal-img').src = src; document.getElementById('modal-title').innerText = title; document.getElementById('card-modal').style.display = 'flex'; }
+
+        function openCardModal(src, title) {
+            document.getElementById('modal-img').src = src;
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('card-modal').style.display = 'flex';
+        }
         function closeCardModal() { document.getElementById('card-modal').style.display = 'none'; }
 
+        function getMistakeBank() { return JSON.parse(localStorage.getItem(getUserKey('mistakeBank'))) || []; }
+        function updateMistakeButton() {
+            let mistakes = getMistakeBank();
+            let btn = document.getElementById('btn-mistake');
+            if (mistakes.length > 0) { btn.style.display = 'inline-block'; document.getElementById('mistake-count').innerText = mistakes.length; } 
+            else btn.style.display = 'none';
+        }
+        function addToMistakeBank(id) {
+            let mistakes = getMistakeBank();
+            if (!mistakes.includes(id)) { mistakes.push(id); localStorage.setItem(getUserKey('mistakeBank'), JSON.stringify(mistakes)); }
+        }
+        function removeFromMistakeBank(id) {
+            let mistakes = getMistakeBank();
+            mistakes = mistakes.filter(mId => mId !== id);
+            localStorage.setItem(getUserKey('mistakeBank'), JSON.stringify(mistakes));
+        }
         function toggleReview() {
             let reviewArea = document.getElementById('full-review-area');
             reviewArea.style.display = (reviewArea.style.display === 'none') ? 'block' : 'none';
@@ -1396,7 +1249,7 @@
             let examQuestions = allQuestions.filter(q => record.questionIds.includes(q.id));
             renderReviewList('history-review-list', examQuestions, record.answers);
         }
-
+        
         window.onload = function() {
             updateMusicUI();
         };
