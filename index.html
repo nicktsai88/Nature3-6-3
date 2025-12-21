@@ -1269,9 +1269,9 @@
             let favs = getFavoriteBank();
             let btn = document.getElementById('btn-toggle-favorite-std');
             if (favs.includes(currentQ.id)) {
-                btn.innerText = '★'; btn.style.background = var(--favorite-color); btn.style.color = 'white';
+                btn.innerText = '★'; btn.style.background = 'var(--favorite-color)'; btn.style.color = 'white';
             } else {
-                btn.innerText = '☆'; btn.style.background = 'white'; btn.style.color = var(--favorite-color);
+                btn.innerText = '☆'; btn.style.background = 'white'; btn.style.color = 'var(--favorite-color)';
             }
         }
 
