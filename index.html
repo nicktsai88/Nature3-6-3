@@ -1033,12 +1033,8 @@
             wfState = { answers: {}, correctCount: 0 };
             
             if (mode === 'speed') {
+                // 修正：取消隨機排序，保持原始順序
                 wfQuestions = [...allQuestions];
-                // Shuffle logic
-                for (let i = wfQuestions.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [wfQuestions[i], wfQuestions[j]] = [wfQuestions[j], wfQuestions[i]];
-                }
                 document.getElementById('wf-mode-title').innerText = "⚡ 極速刷題 (全範圍)";
             } else if (mode === 'mistake') {
                 let ids = getMistakeBank();
