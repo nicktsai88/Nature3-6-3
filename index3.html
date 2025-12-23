@@ -462,17 +462,13 @@
         // 設定與全域變數
         // 修改點 2 & 3: 更新關卡配置與總題數 (20+20+20+20+20+23=123)
         const LEVEL_CONFIG = [20, 20, 20, 20, 20, 23];
-        // 修改點：新增影片至播放清單
-        const YOUTUBE_PLAYLIST = ['aGZk0nEBWv4','advioIb8-gE','Ma-x7EuBYnQ'];
+        const YOUTUBE_PLAYLIST = ['aGZk0nEBWv4'];
         // 修改點 4: LocalStorage 前綴改為 Nature3-6-3_
         const APP_PREFIX = 'Nature3-6-3_';
         
         let player, isPlayerReady = false, isPlaying = false;
         let allQuestions = [], currentQuizData = [];
         let userName = "", currentAvatar = "Chris.png";
-        
-        // 修改點：新增當前影片索引追蹤
-        let currentVideoIdx = 0;
         
         // 測驗狀態
         let quizState = {
@@ -1099,7 +1095,7 @@
         function onYouTubeIframeAPIReady() {
             player = new YT.Player('yt-player', {
                 height: '100%', width: '100%',
-                videoId: YOUTUBE_PLAYLIST[currentVideoIdx], // 修改點：使用索引載入
+                videoId: YOUTUBE_PLAYLIST[0],
                 playerVars: { 'playsinline': 1, 'controls': 0, 'disablekb': 1, 'fs': 0, 'rel': 0 },
                 events: { 'onReady': onPlayerReady, 'onStateChange': onPlayerStateChange }
             });
@@ -1108,23 +1104,11 @@
         function onPlayerStateChange(e) { 
             isPlaying = (e.data == YT.PlayerState.PLAYING);
             document.getElementById('main-play-btn').innerText = isPlaying ? '⏸' : '▶';
-            if(e.data == YT.PlayerState.ENDED) player.playVideo(); // Loop current video
+            if(e.data == YT.PlayerState.ENDED) player.playVideo(); // Loop
         }
         function togglePlay() { if(isPlayerReady) isPlaying ? player.pauseVideo() : player.playVideo(); }
-        // 修改點：上一首功能
-        function prevTrack() { 
-            if(isPlayerReady) {
-                currentVideoIdx = (currentVideoIdx - 1 + YOUTUBE_PLAYLIST.length) % YOUTUBE_PLAYLIST.length;
-                player.loadVideoById(YOUTUBE_PLAYLIST[currentVideoIdx]);
-            }
-        }
-        // 修改點：下一首功能
-        function nextTrack() { 
-            if(isPlayerReady) {
-                currentVideoIdx = (currentVideoIdx + 1) % YOUTUBE_PLAYLIST.length;
-                player.loadVideoById(YOUTUBE_PLAYLIST[currentVideoIdx]);
-            }
-        } 
+        function prevTrack() { if(isPlayerReady) player.seekTo(0); }
+        function nextTrack() { if(isPlayerReady) player.seekTo(0); } // Single track list
         function setVolume(v) { if(isPlayerReady) player.setVolume(v); }
         function toggleVideoDisplay() {
             const wrap = document.getElementById('yt-wrapper');
